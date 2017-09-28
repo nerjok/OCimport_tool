@@ -1,0 +1,118 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-importexport" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb['href'] }}">{{ breadcrumb['text'] }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-importexport" class="form-horizontal">
+            <div class="table-responsive">
+            <table class="table-bordered">
+              <thead>
+              <tr>
+                <th>CSV Headings</th>
+                <th>Map to</th>
+              </tr>
+              </thead>
+              <tbody>
+                {% for key, headings in headercsv %}
+                  <tr>
+                    <td>{{ headings }}</td>
+                    <td>
+
+                 <select class="form-control" name="mapto[{{ key }}]" data-src="{{ headings }}" >
+                   <option data-src="{{ headings }}" value="0">Select options</option>
+                    {% for  tabledata in table_structure %}
+
+                    <option data-src="{{ headings }}" value="{{ tabledata['Field'] }}">{{ tabledata['Field'] }}</option>
+
+                      {% endfor %}
+                 </select>
+
+                    </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+            </table>
+            </div>
+            <input type="hidden" name="uploadedFileName" value="{{ uploadedFileName }}">
+        <div class="form-group">
+          <input type="button" id="maptocsv" class="btn btn-info" name="maptocsv" value="Map To Headings">
+        </div>
+      </form>
+
+      <button type="button" id="openlist" class="btn btn-info btn-lg hidden" data-toggle="modal" data-target="#openNotMap">Open Modal</button>
+
+      <!-- Modal -->
+      <div id="openNotMap" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Mapped List</h4>
+            </div>
+            <div class="modal-body" id="notmaplist">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Map</button>
+              <button type="button" id="removerow" class="btn btn-warning">Skip Not Mapped</button>
+              <button type="button" id="savedata" name="maptocsv" class="btn btn-success"><i class="fa fa-save"> Save Data</i></button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+$("#removerow").click(function(){
+  $(".removerows").remove();
+});
+$("#savedata").click(function(){
+  $("#form-importexport").submit();
+});
+$("#maptocsv").click(function(){
+  var data=$("select option:selected");
+  var html="";
+  html +="<table class='table-bordered'><thead><tr><th>Csv Heading </th><th>Map to csv</th></tr></thead><tbody>";
+    $(data).each(function () {
+      if($(this).val()==0){
+       html +="<tr class='removerows'>";
+     }else{
+       html +="<tr>";
+     }
+       html+="<td>"+ $(this).attr('data-src') +"</td><td>"+ $(this).val()+"</td></tr>";
+     });
+  html+="</tbody></table>";
+  $("#openlist").click();
+  $("#notmaplist").html(html);
+});
+
+</script>
+{{ footer }}
